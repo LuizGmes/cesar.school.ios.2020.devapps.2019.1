@@ -130,7 +130,7 @@ class CarsTableViewController: UITableViewController {
             // 1
             let car = cars[indexPath.row]
             
-            REST.delete(car: car) { (success) in
+            REST.delete(car: car, onComplete: { (success) in
                 if success {
                                         
                     // ATENCAO nao esquecer disso
@@ -143,6 +143,9 @@ class CarsTableViewController: UITableViewController {
                         
                     }
                 }
+            }){(carError) in
+                
+                
             }
         }
     }

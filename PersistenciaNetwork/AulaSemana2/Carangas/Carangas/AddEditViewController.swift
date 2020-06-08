@@ -70,22 +70,22 @@ class AddEditViewController: UIViewController {
         
         startLoadingAnimation()
         
-        REST.loadBrands { (brands) in
-            guard let brands = brands else {
-                self.showAlertError(withTitle: "Obter Marcas", withMessage: "Problemas ao tentar recuperar as marcas.", isTryAgain: true, operation: .get_brands)
-                return
-            }
+        REST.loadBrands(onComplete: { (brands) in
+            
 
             // ascending order
             self.brands = brands.sorted(by: {$0.fipe_name < $1.fipe_name})
             
-            DispatchQueue.main.async {
-                // paramos as animacao caso tenha sucesso
+           // paramos as animacao caso tenha sucesso
                 self.stopLoadingAnimation()
                 self.pickerView.reloadAllComponents()
+            }) { (carError) in
+                
+                self.showAlertError(withTitle: "Carregar", withMessage: "Problema ao tentar Carregar.", isTryAgain: true, operation: .get_brands)
+                
             }
-        }
     }
+    
     
     // MARK: - IBActions
     
@@ -94,34 +94,24 @@ class AddEditViewController: UIViewController {
         
         startLoadingAnimation()
         
-        REST.save(car: car) { (success) in
-            
-            if success {
-                // consegui salvar
-                
-                // note. self.stopLoadingAnimation() eh opcional ser chamado porque
-                // a tela sera notificar
-                
-                self.goBack()
-            } else {
-                // não salvou por algum problema
-                self.showAlertError(withTitle: "Salvar", withMessage: "Problema ao tentar SALVAR.", isTryAgain: true, operation: .add_car)
-            }
-            
+        REST.save(car: car, onComplete: { (sucess) in
+            self.goBack()
+        }) { (carError) in
+            self.showAlertError(withTitle: "Salvar", withMessage: "Problema ao tentar SALVAR.", isTryAgain: true, operation: .add_car)
         }
+        
     }
     
     fileprivate func updateCar() {
         // 2 - edit current car
         startLoadingAnimation()
         
-        REST.update(car: car) { (sucess) in
-            if sucess {
-                self.goBack()
-            } else {
-                self.showAlertError(withTitle: "Editar", withMessage: "Problema ao tentar EDITAR.", isTryAgain: true, operation: .edit_car)
-            }
+        REST.update(car: car, onComplete: { (sucess) in
+            self.goBack()
+        }) { (carError) in
+            self.showAlertError(withTitle: "Editar", withMessage: "Problema ao tentar EDITAR.", isTryAgain: true, operation: .edit_car)
         }
+        
     }
     
     @IBAction func addEdit(_ sender: UIButton) {
